@@ -138,25 +138,25 @@ resource "aws_instance" "ec2_agent_vector" {
     sudo apt update -y
     sudo apt upgrade -y
     DD_API_KEY="${var.DD_API_KEY}" DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
-    curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh' | sudo -E bash
-    sudo apt-get -y install vector
-    
-    # Vector Config
-    printf '[sources.datadog-vector-demo]
-    type = "aws_s3"
-    region = "${var.region}"
-    strategy = "sqs"
-    sqs.queue_url = "${aws_sqs_queue.vector-queue.id}"
-    auth.access_key_id = "${var.access_key}"
-    auth.secret_access_key = "${var.secret_key}"
+    # curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh' | sudo -E bash
+    # sudo apt-get -y install vector
 
-    [sinks.datadog]
-    type = "datadog_logs"
-    inputs = ["datadog-vector-demo"]
-    default_api_key = "${var.DD_API_KEY}"
-    compression = "gzip"' | sudo tee /etc/vector/vector.toml
-    sudo systemctl start vector
-    sudo reboot
+    # # Vector Config
+    # printf '[sources.datadog-vector-demo]
+    # type = "aws_s3"
+    # region = "${var.region}"
+    # strategy = "sqs"
+    # sqs.queue_url = "${aws_sqs_queue.vector-queue.id}"
+    # auth.access_key_id = "${var.access_key}"
+    # auth.secret_access_key = "${var.secret_key}"
+
+    # [sinks.datadog]
+    # type = "datadog_logs"
+    # inputs = ["datadog-vector-demo"]
+    # default_api_key = "${var.DD_API_KEY}"
+    # compression = "gzip"' | sudo tee /etc/vector/vector.toml
+    # sudo systemctl start vector
+    # sudo reboot
     EOL
 }
 
@@ -164,40 +164,40 @@ resource "aws_instance" "ec2_agent_vector" {
 # S3 - Bucket 
 #########################################################################################################
 
-resource "aws_s3_bucket" "datadog-vector-bucket"  {
-  bucket = "${var.name}-bucket"
-}
+# resource "aws_s3_bucket" "datadog-vector-bucket"  {
+#   bucket = "${var.name}-bucket"
+# }
 
 #########################################################################################################
 # SQS/SNS
 #########################################################################################################
 
 
-resource "aws_sqs_queue" "vector-queue" {
-  name   = "${var.name}-queue"
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Id": "sqspolicy",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "sqs:SendMessage",
-      "Resource": "arn:aws:sqs:*:*:${var.name}-queue",
-      "Condition": {
-        "ArnEquals": { "aws:SourceArn": "${aws_s3_bucket.datadog-vector-bucket.arn}" }
-      }
-    }
-  ]
-}
-POLICY
-}
+# resource "aws_sqs_queue" "vector-queue" {
+#   name   = "${var.name}-queue"
+#   policy = <<POLICY
+# {
+#   "Version": "2012-10-17",
+#   "Id": "sqspolicy",
+#   "Statement": [
+#     {
+#       "Effect": "Allow",
+#       "Principal": "*",
+#       "Action": "sqs:SendMessage",
+#       "Resource": "arn:aws:sqs:*:*:${var.name}-queue",
+#       "Condition": {
+#         "ArnEquals": { "aws:SourceArn": "${aws_s3_bucket.datadog-vector-bucket.arn}" }
+#       }
+#     }
+#   ]
+# }
+# POLICY
+# }
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.datadog-vector-bucket.id
-  queue {
-    queue_arn = aws_sqs_queue.vector-queue.arn
-    events    = ["s3:ObjectCreated:*"]
-  }
-}
+# resource "aws_s3_bucket_notification" "bucket_notification" {
+#   bucket = aws_s3_bucket.datadog-vector-bucket.id
+#   queue {
+#     queue_arn = aws_sqs_queue.vector-queue.arn
+#     events    = ["s3:ObjectCreated:*"]
+#   }
+# }
