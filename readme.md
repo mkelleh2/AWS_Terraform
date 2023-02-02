@@ -22,3 +22,9 @@ You will need to create terraform.tfvars in the directory that you are using to 
 # Other Terraform Commands
 - You can destroy specific resources by running: `terraform destroy --target <resource>.<resource_name>`
 - You can destroy all resources by running: `terraform destroy`
+
+# Additional Resources
+- [Terraform Datadog Registr](https://registry.terraform.io/providers/DataDog/datadog/latest/docs)
+- [Terraform Documentation - aws_key_pair resource](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair)
+- [Blog: Importing Existing Infrastructure into Terraform - Step by Step](https://spacelift.io/blog/importing-exisiting-infrastructure-into-terraform)
+- [Terraform Import Usage](https://developer.hashicorp.com/terraform/cli/import/usage)
